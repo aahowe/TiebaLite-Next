@@ -87,10 +87,6 @@ fun <T> rememberPreferenceAsState(
             .collect { state.value = it }
     }
 
-    LaunchedEffect(state.value) {
-        dataStore.edit { it[key] = state.value }
-    }
-
     return state
 }
 

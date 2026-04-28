@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
@@ -15,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -103,6 +103,18 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
         }
     }
 
+    private val uCropLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                mUri = UCrop.getOutput(it.data!!)
+                invalidateFinishBtn()
+                refreshBackground()
+            } else if (it.resultCode == UCrop.RESULT_ERROR) {
+                val cropError = UCrop.getError(it.data!!)
+                cropError!!.printStackTrace()
+            }
+        }
+
     var wallpapers: List<String>? = null
         set(value) {
             field = value
@@ -128,7 +140,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                 val destUri = Uri.fromFile(File(filesDir, "cropped_background.jpg"))
                 val height = App.ScreenInfo.EXACT_SCREEN_HEIGHT.toFloat()
                 val width = App.ScreenInfo.EXACT_SCREEN_WIDTH.toFloat()
-                UCrop.of(sourceFileUri, destUri)
+                val intent = UCrop.of(sourceFileUri, destUri)
                     .withAspectRatio(width / height, 1f)
                     .withOptions(UCrop.Options().apply {
                         setShowCropFrame(true)
@@ -167,24 +179,12 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                         )
                         setCompressionFormat(Bitmap.CompressFormat.JPEG)
                     })
-                    .start(this@TranslucentThemeActivity)
+                    .getIntent(this@TranslucentThemeActivity)
+                uCropLauncher.launch(intent)
             } else if (result is LoadResult.Error) {
                 mProgress.visibility = View.GONE
                 toastShort(R.string.text_load_failed)
             }
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            mUri = UCrop.getOutput(data!!)
-            invalidateFinishBtn()
-            refreshBackground()
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            val cropError = UCrop.getError(data!!)
-            cropError!!.printStackTrace()
         }
     }
 
