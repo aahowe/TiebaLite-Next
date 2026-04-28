@@ -215,7 +215,6 @@ dependencies {
     implementation(androidx.appcompat)
     implementation(androidx.annotation)
     implementation(androidx.browser)
-    implementation(androidx.constraintlayout)
     implementation(androidx.core)
     implementation(androidx.core.splashscreen)
     implementation(androidx.datastore.preferences)
@@ -253,8 +252,6 @@ dependencies {
 
     implementation(com.github.yalantis.ucrop)
 
-    implementation(com.jakewharton.butterknife)
-    kapt(com.jakewharton.butterknife.compiler)
 
     implementation(appcenter.analytics)
     implementation(appcenter.crashes)

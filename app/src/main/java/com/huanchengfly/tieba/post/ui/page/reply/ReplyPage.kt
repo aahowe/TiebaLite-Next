@@ -4,8 +4,10 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.text.InputType
 import android.util.Log
-import android.view.View
+import android.util.TypedValue
+import android.view.Gravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -74,6 +76,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -108,6 +111,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.MyBackHandler
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText
+import com.huanchengfly.tieba.post.ui.widgets.theme.TintUndoableEditText
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.Emoticon
 import com.huanchengfly.tieba.post.utils.EmoticonManager
@@ -417,6 +421,8 @@ internal fun ReplyPageContent(
     }
 
     val canSend by remember { derivedStateOf { !isTextEmpty || selectedImageList.isNotEmpty() } }
+    val textColor = ExtendedTheme.colors.text.toArgb()
+    val hintTextColor = ExtendedTheme.colors.textSecondary.toArgb()
 
     val textFieldScrollState = rememberScrollState()
 
@@ -451,54 +457,48 @@ internal fun ReplyPageContent(
             )
         }
         VerticalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-        Box(
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .imeNestedScroll(textFieldScrollState),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .requiredHeightIn(min = minResult, max = maxResult)
-                    .verticalScroll(textFieldScrollState)
-            ) {
-                AndroidView(
-                    factory = { ctx ->
-                        (View.inflate(
-                            ctx,
-                            R.layout.layout_reply_edit_text,
-                            null
-                        ) as UndoableEditText).apply {
-                            editTextView = this
-                            if (subPostId != null && subPostId != 0L && replyUserName != null) {
-                                hint = ctx.getString(R.string.hint_reply, replyUserName)
-                            }
-                            setOnFocusChangeListener { _, hasFocus ->
-                                if (hasFocus) {
-                                    switchToPanel(NONE)
-                                }
-                            }
-                            addTextChangedListener(
-                                afterTextChanged = {
-                                    coroutineScope.launch {
-                                        curTextFlow.emit(it?.toString() ?: "")
-                                    }
-                                }
-                            )
-                            if (waitEditTextToSet) {
-                                waitEditTextToSet = false
-                                this.setText(StringUtil.getEmoticonContent(this, initialText))
-                                this.setSelection(initialText.length)
+        AndroidView(
+            factory = { ctx ->
+                TintUndoableEditText(ctx).apply {
+                    editTextView = this
+                    gravity = Gravity.TOP or Gravity.START
+                    hint = if (subPostId != null && subPostId != 0L && replyUserName != null) {
+                        ctx.getString(R.string.hint_reply, replyUserName)
+                    } else {
+                        ctx.getString(R.string.tip_reply)
+                    }
+                    importantForAutofill = android.view.View.IMPORTANT_FOR_AUTOFILL_NO
+                    inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE
+                    minLines = 2
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    setTextColor(textColor)
+                    setHintTextColor(hintTextColor)
+                    setOnFocusChangeListener { _, hasFocus ->
+                        if (hasFocus) {
+                            switchToPanel(NONE)
+                        }
+                    }
+                    addTextChangedListener(
+                        afterTextChanged = {
+                            coroutineScope.launch {
+                                curTextFlow.emit(it?.toString() ?: "")
                             }
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(align = Alignment.Top)
-                )
-            }
+                    )
+                    if (waitEditTextToSet) {
+                        waitEditTextToSet = false
+                        this.setText(StringUtil.getEmoticonContent(this, initialText))
+                        this.setSelection(initialText.length)
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(maxResult)
+                .padding(16.dp)
+                .imeNestedScroll(textFieldScrollState),
+        )
 //            BaseTextField(
 //                value = text,
 //                onValueChange = { text = it },
@@ -516,7 +516,6 @@ internal fun ReplyPageContent(
 //                    },
 //                placeholder = { Text(text = stringResource(id = R.string.tip_reply)) },
 //            )
-        }
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp)

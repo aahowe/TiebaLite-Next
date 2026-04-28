@@ -1652,6 +1652,10 @@ private fun BottomBar(
     hasAgreed: Boolean = false,
     agreeNum: Long = 0,
 ) {
+    val context = LocalContext.current
+    val showReply = !context.appPreferences.hideReply
+    val isLoggedIn = user.get { is_login } == 1
+
     Column(
         modifier = Modifier.background(ExtendedTheme.colors.threadBottomBar)
     ) {
@@ -1663,14 +1667,16 @@ private fun BottomBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (user.get { is_login } == 1 && !LocalContext.current.appPreferences.hideReply) {
-                Avatar(
-                    data = StringUtil.getAvatarUrl(user.get { portrait }),
-                    size = Sizes.Tiny,
-                    contentDescription = user.get { name },
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                )
+            if (showReply) {
+                if (isLoggedIn) {
+                    Avatar(
+                        data = StringUtil.getAvatarUrl(user.get { portrait }),
+                        size = Sizes.Tiny,
+                        contentDescription = user.get { name },
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                    )
+                }
 
                 Row(
                     modifier = Modifier
@@ -1688,9 +1694,11 @@ private fun BottomBar(
                     )
                 }
             } else {
-                Spacer(modifier = Modifier
-                    .weight(1f)
-                    .height(40.dp))
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                )
             }
 
             BottomBarAgreeBtn(

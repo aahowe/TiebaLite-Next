@@ -69,13 +69,11 @@ import com.godaddy.android.colorpicker.harmony.ColorHarmonyMode
 import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
-import com.huanchengfly.tieba.post.components.dialogs.CustomThemeDialog
-import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.rememberPreferenceAsMutableState
 import com.huanchengfly.tieba.post.rememberPreferenceAsState
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
+import com.huanchengfly.tieba.post.ui.page.destinations.TranslucentThemePageDestination
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
@@ -86,6 +84,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.utils.extension.toArgbHexString
 import com.huanchengfly.tieba.post.utils.extension.toHexString
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -137,7 +136,7 @@ fun AppThemePage(
                 onClick = {
                     customStatusBarFontDark = customStatusBarFontDark || !customToolbarPrimaryColor
                     context.appPreferences.customPrimaryColor =
-                        CustomThemeDialog.toString(customPrimaryColor.toArgb())
+                        customPrimaryColor.toArgb().toArgbHexString()
                     context.appPreferences.toolbarPrimaryColor = customToolbarPrimaryColor
                     context.appPreferences.customStatusBarFontDark = customStatusBarFontDark
                     ThemeUtil.setUseDynamicTheme(false)
@@ -416,7 +415,7 @@ fun AppThemePage(
                                     .weight(1f)
                                     .clip(RoundedCornerShape(6.dp))
                                     .clickable {
-                                        context.goToActivity<TranslucentThemeActivity>()
+                                        navigator.navigate(TranslucentThemePageDestination)
                                     },
                                 contentAlignment = Alignment.Center
                             ) {

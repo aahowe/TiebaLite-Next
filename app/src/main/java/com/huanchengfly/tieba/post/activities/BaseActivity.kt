@@ -24,14 +24,13 @@ import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import butterknife.ButterKnife
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.ui.common.theme.interfaces.ExtraRefreshable
 import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
-import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
+import com.huanchengfly.tieba.post.ui.widgets.compose.releaseVoicePlayer
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import com.huanchengfly.tieba.post.utils.DialogUtil
@@ -96,7 +95,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
 
     override fun onStop() {
         super.onStop()
-        VoicePlayerView.Manager.release()
+        releaseVoicePlayer()
     }
 
     open val isNeedImmersionBar: Boolean = true
@@ -112,10 +111,6 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         oldTheme = ThemeUtil.getRawTheme()
         if (isNeedImmersionBar) {
             refreshStatusBarColor()
-        }
-        if (getLayoutId() != -1) {
-            setContentView(getLayoutId())
-            ButterKnife.bind(this)
         }
     }
 
@@ -327,8 +322,6 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
                 mTarget.imageTintList = ColorStateList.valueOf(color)
             }
     }
-
-    open fun getLayoutId(): Int = -1
 
     fun launchIO(
         start: CoroutineStart = CoroutineStart.DEFAULT,

@@ -247,9 +247,6 @@ libraries:
     constraintlayout-compose:
       alias: androidx-constraintlayout-compose
       version: 1.0.1
-    constraintlayout:
-      alias: androidx-constraintlayout
-      version: 2.1.4
   androidx.activity:
     activity-ktx:
       alias: androidx-activity
@@ -365,11 +362,6 @@ libraries:
   com.github.yalantis:
     ucrop:
       version: 2.2.8
-  com.jakewharton:
-    butterknife:
-      version: 10.2.3
-    butterknife-compiler:
-      version: 10.2.3
   com.microsoft.appcenter:
     appcenter-analytics:
       alias: appcenter-analytics
