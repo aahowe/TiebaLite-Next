@@ -15,7 +15,7 @@ fun getUserAgent(appendString: String? = null): String {
 
 fun getCookie(vararg cookies: Pair<String, () -> String?>): String {
     return cookies.map { it.first to it.second() }.filterNot { it.second.isNullOrEmpty() }
-        .joinToString("; ") { "${it.first}:${it.second}" }
+        .joinToString("; ") { "${it.first}=${it.second}" }
 }
 
 fun getScreenHeight(): Int = ScreenInfo.EXACT_SCREEN_HEIGHT

@@ -29,6 +29,7 @@ fun buildProtobufRequestBody(
     data: Message<*, *>,
     clientVersion: ClientVersion = ClientVersion.TIEBA_V11,
     needSToken: Boolean = true,
+    stoken: String? = null,
 ): MyMultipartBody {
     return MyMultipartBody.Builder(BOUNDARY)
         .apply {
@@ -37,7 +38,7 @@ fun buildProtobufRequestBody(
                 addFormDataPart(Param.CLIENT_VERSION, clientVersion.version)
             }
             if (needSToken) {
-                val sToken = AccountUtil.getSToken()
+                val sToken = stoken ?: AccountUtil.getSToken()
                 if (sToken != null) addFormDataPart(Param.STOKEN, sToken)
             }
             addFormDataPart("data", "file", data.encode().toRequestBody())
@@ -102,7 +103,7 @@ fun buildCommonRequest(
 
     ClientVersion.TIEBA_V12 -> {
         CommonRequest(
-            BDUSS = AccountUtil.getBduss(),
+            BDUSS = bduss ?: AccountUtil.getBduss(),
             _client_id = ClientUtils.clientId ?: RetrofitTiebaApi.randomClientId,
             _client_type = 2,
             _client_version = clientVersion.version,
@@ -142,7 +143,7 @@ fun buildCommonRequest(
             sdk_ver = "2.34.0",
             start_scheme = "",
             start_type = 1,
-            stoken = AccountUtil.getSToken(),
+            stoken = stoken ?: AccountUtil.getSToken(),
             swan_game_ver = "1038000",
             user_agent = getUserAgent("tieba/${clientVersion.version}"),
             z_id = AccountUtil.getAccountInfo { zid }
@@ -151,7 +152,7 @@ fun buildCommonRequest(
 
     ClientVersion.TIEBA_V12_POST -> {
         CommonRequest(
-            BDUSS = AccountUtil.getBduss(),
+            BDUSS = bduss ?: AccountUtil.getBduss(),
             _client_id = ClientUtils.clientId ?: RetrofitTiebaApi.randomClientId,
             _client_type = 2,
             _client_version = clientVersion.version,
@@ -193,7 +194,7 @@ fun buildCommonRequest(
             sdk_ver = "2.34.0",
             start_scheme = "",
             start_type = 1,
-            stoken = AccountUtil.getSToken(),
+            stoken = stoken ?: AccountUtil.getSToken(),
             swan_game_ver = "1038000",
             tbs = tbs,
             user_agent = getUserAgent("tieba/${clientVersion.version}"),

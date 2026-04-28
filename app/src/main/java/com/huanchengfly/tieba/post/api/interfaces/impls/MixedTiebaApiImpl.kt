@@ -1454,7 +1454,8 @@ object MixedTiebaApiImpl : ITiebaApi {
                     )
                 ),
                 clientVersion = ClientVersion.TIEBA_V12,
-                needSToken = true
+                needSToken = true,
+                stoken = sToken
             )
         )
     }
